@@ -1,8 +1,6 @@
 /**
- * @file map.cpp
- * 
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2019 Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2017  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +24,6 @@
 #include "combat.h"
 #include "creature.h"
 #include "game.h"
-#include "monster.h"
 
 extern Game g_game;
 
@@ -846,8 +843,7 @@ int_fast32_t AStarNodes::getTileWalkCost(const Creature& creature, const Tile* t
 
 	if (const MagicField* field = tile->getFieldItem()) {
 		CombatType_t combatType = field->getCombatType();
-		const Monster* monster = creature.getMonster();
-		if (!creature.isImmune(combatType) && !creature.hasCondition(Combat::DamageToConditionType(combatType)) && (monster && !monster->canWalkOnFieldType(combatType))) {
+		if (!creature.isImmune(combatType) && !creature.hasCondition(Combat::DamageToConditionType(combatType))) {
 			cost += MAP_NORMALWALKCOST * 18;
 		}
 	}

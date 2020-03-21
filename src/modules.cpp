@@ -1,23 +1,6 @@
 /**
- * @file modules.cpp
- * 
- * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2019 Mark Samman <mark.samman@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+* This file doesn't belong to theforgottenserver developers.
+*/
 
 #include "otpch.h"
 
@@ -30,11 +13,18 @@ Modules::Modules() :
 	scriptInterface.initState();
 }
 
-void Modules::clear(bool) 
+Modules::~Modules()
+{
+	for (const auto& it : recvbyteList) {
+		delete it.second;
+	}
+}
+
+void Modules::clear()
 {
 	//clear recvbyte list
-	for (auto& it : recvbyteList) {
-		it.second.clearEvent();
+	for (const auto& it : recvbyteList) {
+		it.second->clearEvent();
 	}
 
 	//clear lua state
@@ -51,35 +41,30 @@ std::string Modules::getScriptBaseName() const
 	return "modules";
 }
 
-Event_ptr Modules::getEvent(const std::string& nodeName)
+Event* Modules::getEvent(const std::string& nodeName)
 {
 	if (strcasecmp(nodeName.c_str(), "module") != 0) {
 		return nullptr;
 	}
-	return Event_ptr(new Module(&scriptInterface));
+	return new Module(&scriptInterface);
 }
 
-bool Modules::registerEvent(Event_ptr event, const pugi::xml_node&)
+bool Modules::registerEvent(Event* event, const pugi::xml_node&)
 {
-	Module_ptr module {static_cast<Module*>(event.release())};
+	Module* module = static_cast<Module*>(event);
 	if (module->getEventType() == MODULE_TYPE_NONE) {
 		std::cout << "Error: [Modules::registerEvent] Trying to register event without type!" << std::endl;
 		return false;
 	}
 
 	Module* oldModule = getEventByRecvbyte(module->getRecvbyte(), false);
-	if (oldModule) {	
+	if (oldModule) {
 		if (!oldModule->isLoaded() && oldModule->getEventType() == module->getEventType()) {
-			oldModule->copyEvent(module.get());
+			oldModule->copyEvent(module);
 		}
 		return false;
 	} else {
-		auto it = recvbyteList.find(module->getRecvbyte());
-		if (it != recvbyteList.end()) {
-			it->second = *module;
-		} else {
-			recvbyteList.emplace(module->getRecvbyte(), std::move(*module));
-		}
+		recvbyteList[module->getRecvbyte()] = module;
 		return true;
 	}
 }
@@ -88,20 +73,20 @@ Module* Modules::getEventByRecvbyte(uint8_t recvbyte, bool force)
 {
 	ModulesList::iterator it = recvbyteList.find(recvbyte);
 	if (it != recvbyteList.end()) {
-		if (!force || it->second.isLoaded()) {
-			return &it->second;
+		if (!force || it->second->isLoaded()) {
+			return it->second;
 		}
 	}
 	return nullptr;
 }
 
-void Modules::executeOnRecvbyte(Player* player, NetworkMessage& msg, uint8_t byte) const
+void Modules::executeOnRecvbyte(Player* player, NetworkMessage& msg, uint8_t byte)
 {
-	for (auto& it : recvbyteList) {
-		Module module = it.second;
-		if (module.getEventType() == MODULE_TYPE_RECVBYTE && module.getRecvbyte() == byte && player->canRunModule(module.getRecvbyte())) {
-			player->setModuleDelay(module.getRecvbyte(), module.getDelay());
-			module.executeOnRecvbyte(player, msg);
+	for (const auto& it : recvbyteList) {
+		Module* module = it.second;
+		if (module->getEventType() == MODULE_TYPE_RECVBYTE && module->getRecvbyte() == byte && player->canRunModule(module->getRecvbyte())) {
+			player->setModuleDelay(module->getRecvbyte(), module->getDelay());
+			module->executeOnRecvbyte(player, msg);
 			return;
 		}
 	}
@@ -188,7 +173,7 @@ void Module::executeOnRecvbyte(Player* player, NetworkMessage& msg)
 	LuaScriptInterface::pushUserdata<Player>(L, player);
 	LuaScriptInterface::setMetatable(L, -1, "Player");
 	
-	LuaScriptInterface::pushUserdata<NetworkMessage>(L, &msg);
+	LuaScriptInterface::pushUserdata<NetworkMessage>(L, const_cast<NetworkMessage*>(&msg));
 	LuaScriptInterface::setWeakMetatable(L, -1, "NetworkMessage");
 
 	lua_pushnumber(L, recvbyte);
