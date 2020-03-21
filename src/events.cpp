@@ -134,8 +134,6 @@ bool Events::load()
 				info.playerOnApplyImbuement= event;
 			}else if (methodName == "clearImbuement") {
 				info.playerClearImbuement = event;
-			} else if (methodName == "onUseItem") {
-				info.playerOnUseItem = event;
 			}else if (methodName == "onCombat") {
 				info.playerOnCombat = event;
 

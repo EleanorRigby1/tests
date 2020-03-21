@@ -1150,7 +1150,6 @@ ReturnValue Game::internalMoveItem(Cylinder* fromCylinder, Cylinder* toCylinder,
 	}
 
 	Item* moveItem = item;
-	bool itemDecays = item->canDecay();
 	//check if we can remove this item
 	ret = fromCylinder->queryRemove(*item, m, flags);
 	if (ret != RETURNVALUE_NOERROR) {
@@ -1180,14 +1179,9 @@ ReturnValue Game::internalMoveItem(Cylinder* fromCylinder, Cylinder* toCylinder,
 	//update item(s)
 	if (item->isStackable()) {
 		uint32_t n;
-		uint32_t duration;
 		if (item->equals(toItem)) {
-			duration = std::min<uint32_t>(item->getDuration(), toItem->getDuration());
 			n = std::min<uint32_t>(100 - toItem->getItemCount(), m);
 			toCylinder->updateThing(toItem, toItem->getID(), toItem->getItemCount() + n);
-			if (toItem->getDuration() > duration){ //punishing the duppers with the minimum time
-				toItem->setDuration(duration);
-			}
 			updateItem = toItem;
 		} else {
 			n = 0;
@@ -1209,10 +1203,6 @@ ReturnValue Game::internalMoveItem(Cylinder* fromCylinder, Cylinder* toCylinder,
 	//add item
 	if (moveItem /*m - n > 0*/) {
 		toCylinder->addThing(index, moveItem);
-		if (itemDecays) {
-			moveItem->setDecaying(DECAYING_PENDING);
-			moveItem->startDecaying();
-		}
 	}
 
 	if (itemIndex != -1) {
@@ -1266,6 +1256,14 @@ ReturnValue Game::internalMoveItem(Cylinder* fromCylinder, Cylinder* toCylinder,
 			if (it.corpseType != RACE_NONE && toCylinder->getContainer()->getTopParent() == player && item->getIsLootTrackeable()) {
 				player->updateLootTracker(item);
 			}
+		}
+	}
+
+	if (moveItem && moveItem->getDuration() > 0) {
+		if (moveItem->getDecaying() != DECAYING_TRUE) {
+			moveItem->incrementReferenceCounter();
+			moveItem->setDecaying(DECAYING_TRUE);
+			g_game.toDecayItems.push_front(moveItem);
 		}
 	}
 
@@ -1353,6 +1351,11 @@ ReturnValue Game::internalAddItem(Cylinder* toCylinder, Item* item, int32_t inde
 		}
 	}
 
+	if (item->getDuration() > 0) {
+		item->incrementReferenceCounter();
+		item->setDecaying(DECAYING_TRUE);
+		g_game.toDecayItems.push_front(item);
+	}
 
 	return RETURNVALUE_NOERROR;
 }
@@ -1394,6 +1397,9 @@ ReturnValue Game::internalRemoveItem(Item* item, int32_t count /*= -1*/, bool te
 
 		if (item->isRemoved()) {
 			ReleaseItem(item);
+			if (item->canDecay()) {
+				decayItems->remove(item);
+			}
 		}
 
 		cylinder->postRemoveNotification(item, nullptr, index);
@@ -1742,6 +1748,14 @@ Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
 	item->setParent(nullptr);
 	cylinder->postRemoveNotification(item, cylinder, itemIndex);
 	ReleaseItem(item);
+
+	if (newItem->getDuration() > 0) {
+		if (newItem->getDecaying() != DECAYING_TRUE) {
+			newItem->incrementReferenceCounter();
+			newItem->setDecaying(DECAYING_TRUE);
+			g_game.toDecayItems.push_front(newItem);
+		}
+	}
 
 	return newItem;
 }

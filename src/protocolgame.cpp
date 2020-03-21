@@ -1213,6 +1213,7 @@ void ProtocolGame::parseCoinTransfer(NetworkMessage& msg)
 		addGameTaskTimed(350, &Game::playerCoinTransfer, player->getID(), receiverName, amount);
 	}
 
+	updateCoinBalance();
 }
 
 void ProtocolGame::parseMarketCreateOffer(NetworkMessage& msg)
@@ -1235,6 +1236,7 @@ void ProtocolGame::parseMarketCancelOffer(NetworkMessage& msg)
 		addGameTask(&Game::playerCancelMarketOffer, player->getID(), timestamp, counter);
 	}
 
+	updateCoinBalance();
 }
 
 void ProtocolGame::parseMarketAcceptOffer(NetworkMessage& msg)
@@ -1246,6 +1248,7 @@ void ProtocolGame::parseMarketAcceptOffer(NetworkMessage& msg)
 		addGameTask(&Game::playerAcceptMarketOffer, player->getID(), timestamp, counter, amount);
 	}
 
+	updateCoinBalance();
 }
 
 void ProtocolGame::parseModalWindowAnswer(NetworkMessage& msg)
@@ -1958,6 +1961,7 @@ void ProtocolGame::sendMarketEnter(uint32_t depotId)
 
 	writeToOutputBuffer(msg);
 
+	updateCoinBalance();
 	sendResourceBalance(player->getMoney(), player->getBankBalance());
 }
 
@@ -1978,6 +1982,39 @@ void ProtocolGame::sendCoinBalance()
 	msg.add<uint32_t>(player->coinBalance); //transferable coins
 
 	writeToOutputBuffer(msg);
+}
+
+void ProtocolGame::updateCoinBalance()
+{
+    NetworkMessage msg;
+    msg.addByte(0xF2);
+    msg.addByte(0x00);
+
+    writeToOutputBuffer(msg);
+
+    g_dispatcher.addTask(
+        createTask(std::bind([](ProtocolGame* client) {
+			if (client) {
+				auto coinBalance = IOAccount::getCoinBalance(client->player->getAccount());
+                client->player->coinBalance = coinBalance;
+                client->sendCoinBalance();
+            }
+        }, this))
+    );
+}
+void ProtocolGame::sendCoinBalance()
+{
+   NetworkMessage msg;
+   msg.AddByte(0xF2);
+   msg.AddByte(0x01);
+
+   msg.AddByte(0xDF);
+   msg.AddByte(0x01);
+
+   msg.add<uint32_t>(player->coinBalance); //total coins
+   msg.add<uint32_t>(player->coinBalance); //transferable coins
+
+   writeToOutputBuffer(msg);
 }
 
 void ProtocolGame::sendMarketLeave()
@@ -2012,6 +2049,7 @@ void ProtocolGame::sendMarketBrowseItem(uint16_t itemId, const MarketOfferList& 
 		msg.addString(offer.playerName);
 	}
 
+	updateCoinBalance();
 	writeToOutputBuffer(msg);
 }
 

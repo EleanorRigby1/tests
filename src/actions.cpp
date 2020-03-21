@@ -29,13 +29,11 @@
 #include "pugicast.h"
 #include "spells.h"
 #include "rewardchest.h"
-#include "events.h"
 
 extern Game g_game;
 extern Spells* g_spells;
 extern Actions* g_actions;
 extern ConfigManager g_config;
-extern Events* g_events;
 
 Actions::Actions() :
 	scriptInterface("Action Interface")
@@ -452,11 +450,6 @@ bool Actions::useItem(Player* player, const Position& pos, uint8_t index, Item* 
 {
 	player->setNextAction(OTSYS_TIME() + g_config.getNumber(ConfigManager::ACTIONS_DELAY_INTERVAL));
 
-	bool canUseItemEvent = g_events->eventPlayerOnUseItem(player, item, nullptr);
-	if (!canUseItemEvent) {
-		return false;
-	}
-
 	if (isHotkey) {
 		showUseHotkeyMessage(player, item, player->getItemTypeCount(item->getID(), -1));
 	}
@@ -484,11 +477,6 @@ bool Actions::useItemEx(Player* player, const Position& fromPos, const Position&
 	if (ret != RETURNVALUE_NOERROR) {
 		player->sendCancelMessage(ret);
 		return false;
-	}
-
-	bool canUseItemEvent = g_events->eventPlayerOnUseItem(player, item, action->getTarget(player, creature, toPos, toStackPos));
-	if (!canUseItemEvent) {
-		return true;
 	}
 
 	if (isHotkey) {

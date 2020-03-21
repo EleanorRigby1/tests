@@ -102,9 +102,13 @@ int main(int argc, char* argv[])
 	g_scheduler.join();
 	g_databaseTasks.join();
 	g_dispatcher.join();
+	std::cin.get();
 	return 0;
 }
 
+__attribute__ ((used)) void saveServer() {
+	g_game.saveGameState();
+}
 
 void mainLoader(int argc, char* argv[], ServiceManager* services)
 {

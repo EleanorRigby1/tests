@@ -530,6 +530,7 @@ class Game
 		Quests quests;
 		GameStore gameStore;
 
+		std::forward_list<Item*> toDecayItems;
 		std::forward_list<Item*> toImbuedItems;
 
 	protected:
@@ -552,8 +553,6 @@ class Game
 
 		std::list<Item*> decayItems[EVENT_DECAY_BUCKETS];
 		std::list<Creature*> checkCreatureLists[EVENT_CREATURECOUNT];
-
-		std::forward_list<Item*> toDecayItems;
 
 		std::list<Item*> imbuedItems[EVENT_IMBUEMENT_BUCKETS];
 
