@@ -1,6 +1,8 @@
 /**
+ * @file mailbox.h
+ * 
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2017  Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2019 Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FS_MAILBOX_H_D231C6BE8D384CAAA3AE410C1323F9DB
-#define FS_MAILBOX_H_D231C6BE8D384CAAA3AE410C1323F9DB
+#ifndef OT_SRC_MAILBOX_H_
+#define OT_SRC_MAILBOX_H_
 
 #include "item.h"
 #include "cylinder.h"
@@ -52,7 +54,6 @@ class Mailbox final : public Item, public Cylinder
 		void replaceThing(uint32_t index, Thing* thing) final;
 
 		void removeThing(Thing* thing, uint32_t count) final;
-		static uint32_t getInboxAmount(uint32_t playerId);
 
 		void postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t link = LINK_OWNER) final;
 		void postRemoveNotification(Thing* thing, const Cylinder* newParent, int32_t index, cylinderlink_t link = LINK_OWNER) final;

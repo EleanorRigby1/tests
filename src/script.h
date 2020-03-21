@@ -1,5 +1,5 @@
 /**
- * @file signals.h
+ * @file script.h
  * 
  * The Forgotten Server - a free and open-source MMORPG server emulator
  * Copyright (C) 2019 Mark Samman <mark.samman@gmail.com>
@@ -19,25 +19,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef OT_SRC_SIGNALS_H_
-#define OT_SRC_SIGNALS_H_
+#ifndef OT_SRC_SCRIPTS_H_
+#define OT_SRC_SCRIPTS_H_
 
-#include <boost/asio.hpp>
+#include "luascript.h"
+#include "enums.h"
 
-class Signals
+class Scripts
 {
-	boost::asio::signal_set set;
 	public:
-		explicit Signals(boost::asio::io_service& service);
+		Scripts();
+		~Scripts();
 
+		bool loadScripts(std::string folderName, bool isLib, bool reload);
+		LuaScriptInterface& getScriptInterface() {
+			return scriptInterface;
+		}
 	private:
-		void asyncWait();
-		static void dispatchSignalHandler(int signal);
-
-		static void sigintHandler();
-		static void sighupHandler();
-		static void sigtermHandler();
-		static void sigusr1Handler();
+		LuaScriptInterface scriptInterface;
 };
 
 #endif
