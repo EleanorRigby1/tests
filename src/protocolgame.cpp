@@ -1980,21 +1980,6 @@ void ProtocolGame::sendCoinBalance()
 	writeToOutputBuffer(msg);
 }
 
-void ProtocolGame::sendCoinBalance()
-{
-   NetworkMessage msg;
-   msg.AddByte(0xF2);
-   msg.AddByte(0x01);
-
-   msg.AddByte(0xDF);
-   msg.AddByte(0x01);
-
-   msg.add<uint32_t>(player->coinBalance); //total coins
-   msg.add<uint32_t>(player->coinBalance); //transferable coins
-
-   writeToOutputBuffer(msg);
-}
-
 void ProtocolGame::sendMarketLeave()
 {
 	NetworkMessage msg;
