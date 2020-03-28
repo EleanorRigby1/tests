@@ -22,7 +22,7 @@
 #ifndef OT_SRC_DEFINITIONS_H_
 #define OT_SRC_DEFINITIONS_H_
 
-static constexpr auto STATUS_SERVER_NAME = "Thornia Engine v2.2";
+static constexpr auto STATUS_SERVER_NAME = "Thornia Engine";
 static constexpr auto STATUS_SERVER_VERSION = "Based on TFS 1.2";
 static constexpr auto STATUS_SERVER_CREDITS = "Thornia Developers";
 
