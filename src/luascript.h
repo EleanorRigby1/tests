@@ -1351,13 +1351,11 @@ class LuaScriptInterface
 		static ScriptEnvironment scriptEnv[16];
 		static int32_t scriptEnvIndex;
 
-		// int32_t runningEventId = EVENT_ID_USER;
+		int32_t runningEventId = EVENT_ID_USER;
 		std::string loadingFile;
 
 		//script file cache
-		// std::map<int32_t, std::string> cacheFiles;
-		static int32_t runningEventId;
-		static std::map<int32_t, std::string> cacheFiles;
+		std::map<int32_t, std::string> cacheFiles;
 };
 
 class LuaEnvironment : public LuaScriptInterface

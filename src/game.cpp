@@ -154,9 +154,6 @@ void Game::setGameState(GameState_t newState)
 			g_scheduler.stop();
 			g_databaseTasks.stop();
 			g_dispatcher.stop();
-			g_dispatcher2.stop();
-			g_stats.stop();
-
 			break;
 		}
 
@@ -3693,7 +3690,6 @@ void Game::checkCreatures(size_t index)
 	}
 
 	cleanup();
-	g_stats.playersOnline = getPlayersOnline();
 }
 
 void Game::changeSpeed(Creature* creature, int32_t varSpeedDelta)
@@ -4698,8 +4694,6 @@ void Game::shutdown()
 	g_scheduler.shutdown();
 	g_databaseTasks.shutdown();
 	g_dispatcher.shutdown();
-	g_dispatcher2.shutdown();
-	g_stats.shutdown();
 	map.spawns.clear();
 	raids.clear();
 
