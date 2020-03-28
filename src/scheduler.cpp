@@ -1,8 +1,6 @@
 /**
- * @file scheduler.cpp
- * 
  * The Forgotten Server - a free and open-source MMORPG server emulator
- * Copyright (C) 2019 Mark Samman <mark.samman@gmail.com>
+ * Copyright (C) 2017  Mark Samman <mark.samman@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,7 +132,7 @@ void Scheduler::shutdown()
 	eventSignal.notify_one();
 }
 
-SchedulerTask* createSchedulerTask(uint32_t delay, std::function<void (void)> f)
+SchedulerTask* createNewSchedulerTask(uint32_t delay, std::function<void (void)> f, const std::string& description, const std::string& extraDescription)
 {
-	return new SchedulerTask(delay, std::move(f));
+	return new SchedulerTask(delay, std::move(f), description, extraDescription);
 }
