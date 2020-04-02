@@ -264,6 +264,12 @@ class LuaScriptInterface
 		static std::string popString(lua_State* L);
 		static int32_t popCallback(lua_State* L);
 
+		//Autoloot
+		static int luaPlayerAddAutoLootItem(lua_State* L);
+        static int luaPlayerRemoveAutoLootItem(lua_State* L);
+        static int luaPlayerGetAutoLootItem(lua_State* L);
+        static int luaPlayerGetAutoLootList(lua_State* L);
+
 		// Userdata
 		template<class T>
 		static void pushUserdata(lua_State* L, T* value)
@@ -1071,6 +1077,11 @@ class LuaScriptInterface
 
 		static int luaPlayerGetIdleTime(lua_State* L);
 
+		/*static int luaPlayerAddAutoLootItem(lua_State* L);
+		static int luaPlayerRemoveAutoLootItem(lua_State* L);
+		static int luaPlayerGetAutoLootItem(lua_State* L);
+		static int luaPlayerGetAutoLootList(lua_State* L); */ // NOT READY
+
 		// Monster
 		static int luaMonsterCreate(lua_State* L);
 
@@ -1580,11 +1591,13 @@ class LuaScriptInterface
 		static ScriptEnvironment scriptEnv[16];
 		static int32_t scriptEnvIndex;
 
-		int32_t runningEventId = EVENT_ID_USER;
+		// int32_t runningEventId = EVENT_ID_USER;
 		std::string loadingFile;
 
 		//script file cache
-		std::map<int32_t, std::string> cacheFiles;
+		// std::map<int32_t, std::string> cacheFiles;
+		static int32_t runningEventId;
+		static std::map<int32_t, std::string> cacheFiles;
 };
 
 class LuaEnvironment : public LuaScriptInterface

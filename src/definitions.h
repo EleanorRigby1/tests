@@ -22,7 +22,7 @@
 #ifndef OT_SRC_DEFINITIONS_H_
 #define OT_SRC_DEFINITIONS_H_
 
-static constexpr auto STATUS_SERVER_NAME = "Prometheus Engine";
+static constexpr auto STATUS_SERVER_NAME = "Prometheus Engine 1.3 Statistics";
 static constexpr auto STATUS_SERVER_VERSION = "Based on TFS 1.3";
 static constexpr auto STATUS_SERVER_CREDITS = "Prometheus Team and The Forgotten Server Developers";
 
@@ -78,5 +78,7 @@ static constexpr auto AUTHENTICATOR_PERIOD = 30U;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+#define STATS_ENABLED
 
 #endif
